@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trang Tạo & Xem Thông Tin</title>
+</head>
+<body>
+  <div id="adminArea" style="display:none;">
+    <h2>Trang Admin - Nhập Thông Tin</h2>
+    <textarea id="inputText" rows="4" cols="50" placeholder="Nhập thông tin ở đây..."></textarea><br/>
+    <button onclick="createLink()">Tạo link</button>
+    <h3>Link tạo ra:</h3>
+    <p id="result"></p>
+  </div>
+
+  <div id="viewArea" style="display:none;">
+    <h2>Thông tin bạn xem</h2>
+    <pre id="displayText"></pre>
+  </div>
+
+  <script>
+    function base64Encode(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    function base64Decode(str) {
+      return decodeURIComponent(escape(atob(str)));
+    }
+
+    // Tạo link chứa dữ liệu base64 trong URL
+    function createLink() {
+      const text = document.getElementById('inputText').value.trim();
+      if (!text) {
+        alert('Vui lòng nhập thông tin!');
+        return;
+      }
+      const encoded = base64Encode(text);
+      const url = `${location.origin}${location.pathname}?data=${encoded}`;
+      document.getElementById('result').innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+    }
+
+    // Kiểm tra nếu có data trong URL thì hiển thị thông tin
+    function checkDataInURL() {
+      const params = new URLSearchParams(window.location.search);
+      const data = params.get('data');
+      if (data) {
+        try {
+          const decoded = base64Decode(data);
+          document.getElementById('viewArea').style.display = 'block';
+          document.getElementById('displayText').innerText = decoded;
+          document.getElementById('adminArea').style.display = 'none';
+        } catch (e) {
+          document.getElementById('viewArea').innerText = 'Dữ liệu không hợp lệ.';
+        }
+      } else {
+        document.getElementById('adminArea').style.display = 'block';
+      }
+    }
+
+    window.onload = checkDataInURL;
+  </script>
+</body>
+</html>
